@@ -7,17 +7,17 @@ import (
 
 // Tested on M1 Macbook pro.
 //
-// go test -bench=. -benchtime=10s
+// go test -bench=. -benchtime=30s
 // goos: darwin
 // goarch: arm64
 // pkg: github.com/greedy52/golang-switch-slice-map-compare/intkey
-// BenchmarkBaseline-8   	860302086	        13.52 ns/op
-// BenchmarkSwitch1-8    	888747649	        13.50 ns/op
-// BenchmarkSwitch5-8    	828560742	        14.49 ns/op
-// BenchmarkSwitch10-8   	489604197	        24.49 ns/op
-// BenchmarkSwitch20-8   	398235208	        30.13 ns/op
-// BenchmarkSlice-8      	887899017	        13.49 ns/op
-// BenchmarkMap-8        	339221132	        35.84 ns/op
+// BenchmarkBaseline-10    	1000000000	         0.6536 ns/op
+// BenchmarkSwitch1-10     	1000000000	         0.6528 ns/op
+// BenchmarkSwitch5-10     	1000000000	         2.313 ns/op
+// BenchmarkSwitch10-10    	1000000000	         3.108 ns/op
+// BenchmarkSwitch20-10    	1000000000	         4.259 ns/op
+// BenchmarkSlice-10       	1000000000	         1.392 ns/op
+// BenchmarkMap-10         	1000000000	        25.22 ns/op
 //
 // BenchmarkBaseline is a baseline where rand number is generated and a
 // function call is made but not using any containers for searching the key.
@@ -27,10 +27,11 @@ import (
 //
 // BenchmarkSlice and BenchmarkMap are using a slice and a map respectively.
 
-const dataSize = 20
+const dataSize = 250
 
 var dataMap map[int]int
 var dataSlice []int
+var randArr []int
 
 func dataBaseline(key int) int {
 	return 0
@@ -149,49 +150,49 @@ func dataSwitch20(key int) int {
 
 func BenchmarkBaseline(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataBaseline(key)
 	}
 }
 
 func BenchmarkSwitch1(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataSwitch1(key)
 	}
 }
 
 func BenchmarkSwitch5(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataSwitch5(key)
 	}
 }
 
 func BenchmarkSwitch10(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataSwitch10(key)
 	}
 }
 
 func BenchmarkSwitch20(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataSwitch20(key)
 	}
 }
 
 func BenchmarkSlice(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataSliceFunc(key)
 	}
 }
 
 func BenchmarkMap(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		key := rand.Int() % dataSize
+		key := randArr[n%len(randArr)] % dataSize
 		dataMapFunc(key)
 	}
 }
@@ -199,6 +200,11 @@ func BenchmarkMap(b *testing.B) {
 func init() {
 	dataMap = make(map[int]int, dataSize)
 	dataSlice = make([]int, dataSize)
+
+	randArr = make([]int, 1000*1000)
+	for i := 0; i < len(randArr); i++ {
+		randArr[i] = rand.Int() % dataSize
+	}
 
 	for i := 0; i < dataSize; i++ {
 		dataMap[i] = i
